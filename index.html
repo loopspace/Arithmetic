@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="viewport" id="viewport" content="width=device-width initial-scale=1 maximum-scale=1 user-scalable=no" />
+		
+		<title>Arithmetic Series</title>
+		
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<script type="text/javascript" src="canvas.js"></script>
+		
+	</head>
+	<body>
+		<canvas id="canvas"></canvas>
+		<form id="values">
+		  <table>
+		    <tr>
+		      <td>
+			<label for="aValue">
+			  First value (a)
+			</label>
+		      </td>
+		      <td>
+			<input type="text" name="aValue" id="aValue"
+		  value="1" />
+		      </td>
+		      <td>
+			<button type="button" value="inca">+5</button>
+		      </td>
+		      <td>
+			<button type="button" value="deca">-5</button>
+		      </td>
+		      <td>
+			<button type="button" value="incaa">+1</button>
+		      </td>
+		      <td>
+			<button type="button" value="decaa">-1</button>
+		      </td>
+		    </tr>
+		    <tr>
+		      <td>
+			<label for="dValue">
+			  Step value (d)
+			</label>
+		      </td>
+		      <td>
+			<input type="text" name="dValue" id="dValue"
+		  value="1" />
+		      </td>
+		      <td>
+			<button type="button" value="incd">+5</button>
+		      </td>
+		      <td>
+			<button type="button" value="decd">-5</button>
+		      </td>
+		      <td>
+			<button type="button" value="incdd">+1</button>
+		      </td>
+		      <td>
+			<button type="button" value="decdd">-1</button>
+		      </td>
+		    </tr>
+		    <tr>
+		      <td>
+			<label for="nValue">
+			  Number of terms (n)
+			</label>
+		      </td>
+		      <td>
+			<input type="text" name="nValue" id="nValue"
+		  value="3" />
+		      </td>
+		      <td>
+			<button type="button" value="incn">+10</button>
+		      </td>
+		      <td>
+			<button type="button" value="decn">-10</button>
+		      </td>
+		      <td>
+			<button type="button" value="incnn">+1</button>
+		      </td>
+		      <td>
+			<button type="button" value="decnn">-1</button>
+		      </td>
+		    </tr>
+		    <tr>
+		      <td></td>
+		      <td>
+			<button type="button" value="set">Set Values</button>
+		      </td>
+		    </tr>
+		    <tr>
+		      <td>Duplicate</td>
+		      <td>
+			<input type="checkbox" id="dup">
+		      </td>
+		    </tr>
+		  </table>
+		</form>
+
+		<script type="text/javascript">
+setTimeout( init(), 500 );</script>							</body>
+</html>
