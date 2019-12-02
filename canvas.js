@@ -24,6 +24,7 @@ var bw;
 var inTouch;
 var drawn;
 var colourList;
+var n,a,d;
 
 function clear() {
     ctx.save();
@@ -140,25 +141,7 @@ function draw() {
 	}
 	ctx.fillText(a,n*w+20,btop+a*h/2);
     }
-
-
-    var palette = ctx.createLinearGradient(0,0,bw,height);
-    palette.addColorStop(0,'hsl(0,100%,50%)');
-    palette.addColorStop(0.167,'hsl(60,100%,50%)');
-    palette.addColorStop(0.333,'hsl(120,100%,50%)');
-    palette.addColorStop(0.5,'hsl(180,100%,50%)');
-    palette.addColorStop(0.667,'hsl(240,100%,50%)');
-    palette.addColorStop(0.833,'hsl(300,100%,50%)');
-    palette.addColorStop(1,'hsl(360,100%,50%)');
-    ctx.beginPath();
-    ctx.rect(width+5-lw,0,10,gheight);
-    ctx.fillStyle = palette;
-    ctx.fill();
     ctx.restore();
-    if (!drawn)
-	colourList = ctx.getImageData(width+10+border,border,1,gheight);
-    drawn = true;
-
 }
 
 
@@ -234,49 +217,6 @@ function resize() {
     resetSeries();
 }
 
-function doMouseDown(e) {
-    var coords = getRelativeCoords(e);
-    ctx.rect(width+5,0,10,gheight);
-    if (coords.x > width+border+5 && coords.x < width+border+15 && coords.y > 0 && coords.y < gheight) {
-	inTouch = true;
-	setColour(rgbToHsl(colourList.data[4*coords.y],colourList.data[4*coords.y+1],colourList.data[4*coords.y+2])*360);
-	draw();
-    }
-}
-
-function doMouseMove(e) {
-    if (inTouch) {
-	var coords = getRelativeCoords(e);
-	ctx.rect(width+5,0,10,gheight);
-	if (coords.y >= 0 && coords.y < gheight) {
-	    setColour(rgbToHsl(colourList.data[4*coords.y],colourList.data[4*coords.y+1],colourList.data[4*coords.y+2])*360);
-	    draw();
-	}
-    }
-}
-
-function doMouseUp(e) {
-    if (inTouch) {
-	var coords = getRelativeCoords(e);
-	ctx.rect(width+5,0,10,gheight);
-	if (coords.y > 0 && coords.y < gheight) {
-	    setColour(rgbToHsl(colourList.data[4*coords.y],colourList.data[4*coords.y+1],colourList.data[4*coords.y+2])*360);
-	    draw();
-	}
-    }
-    inTouch = false;
-}
-
-function doMouseOut(e) {
-    inTouch = false;
-}
-
-
-function getRelativeCoords(event) {
-    if (event.offsetX !== undefined && event.offsetY !== undefined) { return { x: event.offsetX, y: event.offsetY }; }
-    return { x: event.layerX, y: event.layerY };
-}
-
 function setColour(h) {
     bgHue = h;
     grHue = h;
@@ -290,10 +230,6 @@ window.addEventListener('resize', resize, false);
 function init() {
     // get context
     canvas=document.querySelector("#canvas");
-    canvas.addEventListener("mousedown",doMouseDown,false);
-    canvas.addEventListener("mouseup",doMouseUp,false);
-    canvas.addEventListener("mouseout",doMouseOut,false);
-    canvas.addEventListener("mousemove",doMouseMove,false);
     ctx = canvas.getContext("2d");
     ctx.font = "12px \"Trebuchet MS\"";
     var tm = ctx.measureText(".00");
@@ -312,8 +248,11 @@ function init() {
 	if (element.type === "button")
 		element.onclick = processForm;
     }
+    document.getElementById("color").onchange = function(e) {
+	setColour(RGBtoHsl(e.target.value)*360);
+	draw();
+    }
     document.getElementById("dup").onchange = function(e) {
-	console.log(e.target.checked);
 	dup = e.target.checked;
 	draw();
     }
@@ -348,3 +287,9 @@ function rgbToHsl(r, g, b){
     return h;
 }
 
+function RGBtoHsl(c) {
+    var r = parseInt(c.substring(1,3),16);
+    var g = parseInt(c.substring(3,5),16);
+    var b = parseInt(c.substring(5,7),16);
+    return rgbToHsl(r,g,b);
+}
