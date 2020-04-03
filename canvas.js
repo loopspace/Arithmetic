@@ -6,9 +6,9 @@ var dField;
 var nField;
 var ctx;
 var strokeWidth = 1;
-var bgHue;
-var grHue;
-var txtHue;
+var bg;
+var fg;
+var txtColour;
 var lh = 30;
 var border;
 var width;
@@ -28,11 +28,11 @@ var n,a,d;
 
 function clear() {
     ctx.save();
-    ctx.fillStyle = "hsl(" + bgHue + ",100%,25%)";
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, fwidth, fheight);
     // also fill bg (not necessary but looks nice when resizing)
     document.querySelector("body").style.backgroundColor = ctx.fillStyle;
-    document.querySelector("form").style.color = "hsl(" + txtHue + ",100%,85%)";
+    document.querySelector("form").style.color = txtColour;
     ctx.restore();
 }
 
@@ -42,7 +42,7 @@ function draw() {
     // clear background
     clear();
     ctx.save();
-    ctx.fillStyle = "hsl("+grHue+",100%,50%)";
+    ctx.fillStyle = fg;
     ctx.translate(border,border);
     ctx.font = '20px serif';
     var lw,rw;
@@ -53,8 +53,8 @@ function draw() {
     ctx.translate(lw,0);
     var i,m;
     m = 2 * a + (n-1)*d;
-    ctx.fillStyle = "hsl("+grHue+",100%,50%)";
-    ctx.strokeStyle = "black";
+    ctx.fillStyle = fg;
+    ctx.strokeStyle = txtColour;
     ctx.lineWidth = strokeWidth;
     ctx.beginPath();
     var w = Math.min(50,(gwidth - (lw + rw))/n);
@@ -67,9 +67,9 @@ function draw() {
     if (w > 2*strokeWidth)
 	ctx.stroke();
 
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = txtColour;
     ctx.lineWidth = 2;
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = txtColour;
 
     ctx.beginPath();
     ctx.moveTo(0,gheight+10);
@@ -110,8 +110,8 @@ function draw() {
     ctx.fillText(a,-15-lw,gheight - a*h/2);
 
     if (dup) {
-	ctx.fillStyle = "hsl("+grHue+",100%,75%)";
-	ctx.strokeStyle = "black";
+	ctx.fillStyle = fg;
+	ctx.strokeStyle = txtColour;
 	ctx.lineWidth = strokeWidth;
 	ctx.beginPath();
 	var w = Math.min(50,(gwidth - (lw + rw))/n);
@@ -124,9 +124,9 @@ function draw() {
 	    ctx.stroke();
 
 
-	ctx.strokeStyle = "white";
+	ctx.strokeStyle = txtColour;
 	ctx.lineWidth = 2;
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = txtColour;
 	if (a*h > 10) {
 	    ctx.beginPath();
 	    ctx.moveTo(n*w+10,btop);
@@ -217,14 +217,6 @@ function resize() {
     resetSeries();
 }
 
-function setColour(h) {
-    bgHue = h;
-    grHue = h;
-    txtHue = bgHue + 180;
-    if (window.localStorage)
-	localStorage.setItem('bgHue',h);
-}
-
 window.addEventListener('resize', resize, false);
 // init
 function init() {
@@ -248,34 +240,67 @@ function init() {
 	if (element.type === "button")
 		element.onclick = processForm;
     }
-    document.getElementById("color").onchange = function(e) {
-	setColour(RGBtoHsl(e.target.value)*360);
-	draw();
-    }
     document.getElementById("dup").onchange = function(e) {
 	dup = e.target.checked;
 	draw();
     }
     dup = document.getElementById("dup").checked;
+    document.getElementById("bgcolor").onchange = function(e) {
+	bg = e.target.value;
+	var l = RGBtoHsl(bg)[2];
+	if (l > .5) {
+	    txtColour = 'black';
+	} else {
+	    txtColour = 'white';
+	}
+
+	if (window.localStorage)
+	    localStorage.setItem('bg',bg);
+	draw();
+    }
+    document.getElementById("fgcolor").onchange = function(e) {
+	fg = e.target.value;
+	if (window.localStorage)
+	    localStorage.setItem('fg',fg);
+	draw();
+    }
     // init some values
+    bg = '#ffffff';
+    fg = '#330033';
+    bg = document.getElementById("bgcolor").value;
+    fg = document.getElementById("fgcolor").value;
+
     var h;
     if (window.localStorage) 
-	h = localStorage.bgHue;
-    if (!h) h = 100;
-    setColour(h);
+	h = localStorage.bg;
+    if (h) {bg = h};
+    var h;
+    if (window.localStorage) 
+	h = localStorage.fg;
+    if (h) {fg = h};
+    var l = RGBtoHsl(bg)[2];
+    console.log(l);
+    if (l > .5) {
+	txtColour = 'black';
+    } else {
+	txtColour = 'white';
+    }
     resetSeries();
 }
+
+// From http://stackoverflow.com/a/9493060/315213
 
 // From http://stackoverflow.com/a/9493060/315213
 function rgbToHsl(r, g, b){
     r /= 255, g /= 255, b /= 255;
     var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var h;
+    var h, s, l = (max + min) / 2;
 
     if(max == min){
-        h = 0; // achromatic
+        h = s = 0; // achromatic
     }else{
         var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
         switch(max){
             case r: h = (g - b) / d + (g < b ? 6 : 0); break;
             case g: h = (b - r) / d + 2; break;
@@ -284,7 +309,7 @@ function rgbToHsl(r, g, b){
         h /= 6;
     }
 
-    return h;
+    return [h, s, l];
 }
 
 function RGBtoHsl(c) {
